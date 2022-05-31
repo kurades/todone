@@ -1,9 +1,9 @@
 const data = {
     task :{
-        'task-1' : {id:'task-1',content:'do sth 1 alskdj asldkhskj hadklasjdhlk ashdksa jdhasl dkajdhaslk jdhalskdjah slkj'},
-        'task-2' : {id:'task-2',content:'do sth 2'},
-        'task-3' : {id:'task-3',content:'do sth 3'},
-        'task-4' : {id:'task-4',content:'do sth 4'},
+        'task-1' : {id:'task-1',content:'Learn more'},
+        'task-2' : {id:'task-2',content:'Make this project'},
+        'task-3' : {id:'task-3',content:'Learn different framework'},
+        'task-4' : {id:'task-4',content:'do sth'}, 
     },
     column :{
         'col-1' : {
