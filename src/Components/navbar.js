@@ -33,7 +33,7 @@ const navbar = () => {
   return (
     <div className='fixed z-10 top-0 left-0'>
       <div className="relative w-60 h-screen shadow-xl flex flex-col justify-between pl-10 py-6">
-        <h1 className='text-3xl font-medium'>.Todoist</h1>
+        <h1 className='text-3xl font-medium'>.Todone</h1>
 
         <div className="flex flex-col my-10 ">
           {navbarItem.map((item) => (

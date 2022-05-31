@@ -7,6 +7,7 @@ const Project = () => {
   const [projectData, updateData] = useState(data);
   const [toggleTask, changeToggleTask] = useState(false);
   const [toggleEdit, ChangeEditState] = useState("");
+  const [edit, setEdit] = useState("");
   const addTaskHandle = () => {
     changeToggleTask(!toggleTask);
   }
@@ -38,12 +39,12 @@ const Project = () => {
           <h1 className="font-medium">{column.title}</h1>
           {(column.id === 'col-1') ? (<div className='select-none w-7 h-7 rounded-sm bg-slate-300 text-center text-white font-bold text-xl leading-6 duration-150 hover:bg-slate-400 hover:cursor-pointer' onClick={addTaskHandle}>+</div>) : (<></>)}
         </div>
-        <Droppable droppableId={column.id}>
+        <Droppable droppableId={column.id} key = {column.id} >
           {(provided, snapshot) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} snapshot={snapshot} className="min-h-[70px] flex flex-col flex-grow">
+            <div ref={provided.innerRef} {...provided.droppableProps} snapshot={snapshot}className="min-h-[70px] flex flex-col flex-grow">
               {(column.id === 'col-1' && toggleTask === true) ?
                 <>
-                  <input className='border-2 p-1 my-1 outline-none' onKeyPress={onSubmitTask} />
+                  <input autoFocus className='border-2 p-1 my-1 outline-none' onKeyPress={onSubmitTask} />
                 </>
                 : <></>
               }
@@ -56,11 +57,8 @@ const Project = () => {
 
     )
   }
-  const onSubmitChange = (event)=>{
-    if(event.key === 'Enter'){
-      ChangeEditState("");
-    }
-  }
+
+
   const Task = ({ item, index, column }) => {
     return (
       <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -71,10 +69,10 @@ const Project = () => {
             {...provided.dragHandleProps}
             ref={provided.innerRef}
           >
-            {(toggleEdit === item.id)?<input autoFocus onKeyPress={onSubmitChange} className='w-[228px] break-words' defaultValue={item.content}/>:<span className='w-[228px] break-words'>{item.content}</span>}
+            {(toggleEdit === item.id)?<input autoFocus /*onChange={(e)=>onChangeEdit(e)}*/ onKeyPress ={(e)=>onSubmitEdit(e,index,column,item.id)} className='w-[228px] break-words' defaultValue={item.content}/>:<span className='w-[228px] break-words'>{item.content}</span>}
             
             <div className="cursor-pointer pl-2 text-gray-300   flex flex-col">
-            <PencilIcon className='w-5 h-5 mb-1 hover:text-black duration-150' onClick={handleEdit(index,item.id,column)}/>
+            <PencilIcon className='w-5 h-5 mb-1 hover:text-black duration-150' onClick={()=>handleEdit(index,item.id,column)}  />
               <TrashIcon className='w-5 h-5 mt-1 hover:text-black duration-150' onClick={()=>handleDelete(index,item.id,column)}/>
             </div>
           </div>
@@ -82,12 +80,29 @@ const Project = () => {
       </Draggable>
     )
   }
-
+  const onSubmitEdit = (event,index,column,id) =>{
+    if(event.key === "Enter"){
+      setEdit(event.target.value)
+      console.log(projectData.task[id]);
+      const newState = {
+        ...projectData,
+        task : {
+          ...projectData.task,
+          [id] :{
+            ...projectData.task[id],
+            content : event.target.value,
+          }
+        }
+      }
+      updateData(newState);
+    }
+  }
   const handleEdit = (index,item,column) =>{
     ChangeEditState(item);
-    const newState = {
-      ...projectData,
-    }
+    console.log(toggleEdit);
+    // const newState = {
+    //   ...projectData,
+    // }
   }
   const handleDelete = (index,item,column)=>{
     // console.log(item,column);
