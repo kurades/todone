@@ -1,13 +1,59 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import data from '../Data/data'
-import { TrashIcon, PencilIcon} from '@heroicons/react/outline'
+import { TrashIcon, PencilIcon } from '@heroicons/react/outline'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId, measurementId, databaseURL } from '../secret'
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get, child } from "firebase/database";
+const firebaseConfig = {
+  apiKey,
+  authDomain,
+  projectId,
+  storageBucket,
+  messagingSenderId,
+  appId,
+  measurementId,
+  databaseURL,
+};
+
+
 const Project = () => {
-  const [projectData, updateData] = useState(data);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const [projectData, updateData] = useState();
   const [toggleTask, changeToggleTask] = useState(false);
   const [toggleEdit, ChangeEditState] = useState("");
   const [edit, setEdit] = useState("");
+  // console.log(data);
+
+  function writeUserData(userId, name, email, imageUrl) {
+    set(ref(db, 'users/' + userId), {
+      username: name,
+      email: email,
+      profile_picture: imageUrl
+    });
+  }
+
+  useEffect(() => {
+    const getProject = () => {
+      get(child(ref(db), '/'))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          updateData(snapshot.val());
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+    }
+    getProject()
+  }, [])
+
+
   const addTaskHandle = () => {
     changeToggleTask(!toggleTask);
   }
@@ -39,16 +85,16 @@ const Project = () => {
           <h1 className="font-medium">{column.title}</h1>
           {(column.id === 'col-1') ? (<div className='select-none w-7 h-7 rounded-sm bg-slate-300 text-center text-white font-bold text-xl leading-6 duration-150 hover:bg-slate-400 hover:cursor-pointer' onClick={addTaskHandle}>+</div>) : (<></>)}
         </div>
-        <Droppable droppableId={column.id} key = {column.id} >
+        <Droppable droppableId={column.id} key={column.id} >
           {(provided, snapshot) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} snapshot={snapshot}className="min-h-[70px] flex flex-col flex-grow">
+            <div ref={provided.innerRef} {...provided.droppableProps} snapshot={snapshot} className="min-h-[70px] flex flex-col flex-grow">
               {(column.id === 'col-1' && toggleTask === true) ?
                 <>
                   <input autoFocus className='border-2 p-1 my-1 outline-none' onKeyPress={onSubmitTask} />
                 </>
                 : <></>
               }
-              {task.map((item, index) => { return <Task key={task.id} index={index} item={item} column={column.id}/> })}
+              {task && task.map((item, index) => { return <Task key={task.id} index={index} item={item} column={column.id} /> })}
               {provided.placeholder}
             </div>
           )}
@@ -69,48 +115,46 @@ const Project = () => {
             {...provided.dragHandleProps}
             ref={provided.innerRef}
           >
-            {(toggleEdit === item.id)?<input autoFocus /*onChange={(e)=>onChangeEdit(e)}*/ onKeyPress ={(e)=>onSubmitEdit(e,index,column,item.id)} className='w-[228px] break-words' defaultValue={item.content}/>:<span className='w-[228px] break-words'>{item.content}</span>}
-            
+            {(toggleEdit === item.id) ? <input autoFocus /*onChange={(e)=>onChangeEdit(e)}*/ onKeyPress={(e) => onSubmitEdit(e, index, column, item.id)} className='w-[228px] break-words' defaultValue={item.content} /> : <span className='w-[228px] break-words'>{item.content}</span>}
+
             <div className="cursor-pointer pl-2 text-gray-300   flex flex-col">
-            <PencilIcon className='w-5 h-5 mb-1 hover:text-black duration-150' onClick={()=>handleEdit(index,item.id,column)}  />
-              <TrashIcon className='w-5 h-5 mt-1 hover:text-black duration-150' onClick={()=>handleDelete(index,item.id,column)}/>
+              <PencilIcon className='w-5 h-5 mb-1 hover:text-black duration-150' onClick={() => handleEditButton(item.id)} />
+              <TrashIcon className='w-5 h-5 mt-1 hover:text-black duration-150' onClick={() => handleDelete(index, item.id, column)} />
             </div>
           </div>
         )}
       </Draggable>
     )
   }
-  const onSubmitEdit = (event,index,column,id) =>{
-    if(event.key === "Enter"){
+  const onSubmitEdit = (event, index, column, id) => {
+    if (event.key === "Enter") {
       setEdit(event.target.value)
-      console.log(projectData.task[id]);
       const newState = {
         ...projectData,
-        task : {
+        task: {
           ...projectData.task,
-          [id] :{
+          [id]: {
             ...projectData.task[id],
-            content : event.target.value,
+            content: event.target.value,
           }
         }
       }
+      ChangeEditState("")
       updateData(newState);
+      console.log(newState);
     }
   }
-  const handleEdit = (index,item,column) =>{
+  const handleEditButton = (item) => {
     ChangeEditState(item);
     console.log(toggleEdit);
-    // const newState = {
-    //   ...projectData,
-    // }
   }
-  const handleDelete = (index,item,column)=>{
+  const handleDelete = (index, item, column) => {
     // console.log(item,column);
     const newState = {
       ...projectData,
     }
     delete newState.task[item]
-    newState.column[column].taskIds.splice(index,1);
+    newState.column[column].taskIds.splice(index, 1);
     updateData(newState)
   }
   const onDragEnd = (result) => {
@@ -142,6 +186,7 @@ const Project = () => {
         }
       }
       updateData(newState)
+      console.log(newState);
       return;
     }
 
@@ -151,6 +196,7 @@ const Project = () => {
       ...start,
       taskIds: startTaskIds
     }
+
     const finishTaskIds = Array.from(finish.taskIds)
     finishTaskIds.splice(destination.index, 0, draggableId)
     const newFinish = {
@@ -172,11 +218,13 @@ const Project = () => {
       <h1 className="font-medium text-3xl">Projects</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-row justify-between items-start">
-          {projectData.columnOrder.map((colunmId) => {
+          {projectData && projectData.columnOrder.map((colunmId) => {
             const column = projectData.column[colunmId];
+            if(!column.taskIds){column.taskIds = []}
             const task = column.taskIds.map(taskId => projectData.task[taskId])
             return <Column key={column.id} column={column} task={task} />
-          })}
+          })
+          }
         </div>
       </DragDropContext>
     </div>
