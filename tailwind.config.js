@@ -9,6 +9,11 @@ module.exports = {
       serif: ['Merriweather', 'serif'],
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addVariant }) {
+      addVariant('child', '& > *');
+      addVariant('child-hover', '& > *:hover');
+  }
+  ],
   
 }
