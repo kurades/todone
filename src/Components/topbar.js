@@ -13,7 +13,7 @@ const Topbar = () => {
             <div className="flex justify-center items-center ">
                 <QuestionMarkCircleIcon className='w-6 text-gray-400 ml-5' />
                 <BellIcon className='w-6 text-gray-400ml-5 ml-5' />
-                <span className='font-medium ml-5'>{currentUser.email}</span>
+                <span className='font-medium ml-5'>{currentUser.displayName || 'Unavailable'}</span>
                 <div className="w-10 ml-5 rounded-full border-2 overflow-hidden">
                     <img src="https://yt3.ggpht.com/yrCWEVmxM0XGSZSaGxgMFt4mfdRGg0-kjBQK2ue3kJZWfI1DOcb8PQ_r5n94IfNW9UQkDlDUdA=s900-c-k-c0x00ffffff-no-rj" alt="" />
                 </div>

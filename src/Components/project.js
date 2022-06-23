@@ -12,7 +12,6 @@ const Project = () => {
   const { currentUser, logout } = useAuth()
 
   const db = getDatabase(App);
-
   const columnOrder = ["col-1", "col-2", "col-3"]
   const [projectData, setProjectData] = useState({
     column: {
@@ -278,7 +277,6 @@ const Project = () => {
         <div className="flex flex-row justify-between items-start max-w-[1400px] m-auto">
           {projectData && columnOrder.map((colunmId) => {
             const column = projectData.column[colunmId];
-            console.log(projectData);
             if (column.taskIds === undefined) { projectData.column[colunmId].taskIds = [] }
             const task = Object.keys(column.taskIds).map((key, value) => projectData.task[key])
             return <Column key={column.id} column={column} task={task} />

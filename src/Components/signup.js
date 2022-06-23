@@ -7,20 +7,16 @@ const Signup = () => {
 
   const emailRef = createRef()
   const passwordRef = createRef()
-  const passwordConfirmRef = createRef()
+  const nameRef = createRef()
   const { signup } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   async function handleSubmit(e) {
     e.preventDefault()
-    if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-      return setError("Password not match")
-    }
-
     try {
       setError('')
       setLoading(true)
-      await signup(emailRef.current.value, passwordRef.current.value)
+      await signup(nameRef.current.value, emailRef.current.value, passwordRef.current.value)
       navigate('/login')
     } catch (error) {
       setError('Fail to create user')
@@ -42,12 +38,13 @@ const Signup = () => {
             <span class="ml-2 block sm:inline">{error}</span>
           </div>)}
           <form className='flex justify-center align-middle flex-col child:my-1'>
+          <label className='text-white' htmlFor="name">Username</label>
+            <input type="name" ref={nameRef} className='outline-none text-white border-white bg-transparent border-2 rounded-md p-1' />
             <label className='text-white' htmlFor="email"  >Email</label>
             <input type="email" ref={emailRef} className='outline-none text-white border-white border-2 rounded-md p-1 bg-transparent' />
             <label className='text-white' htmlFor="password">Password</label>
             <input type="password" ref={passwordRef} className='outline-none text-white border-white border-2 rounded-md p-1 bg-transparent' />
-            <label className='text-white' htmlFor="password">Password confirm</label>
-            <input type="password" ref={passwordConfirmRef} className='outline-none text-white border-white bg-transparent border-2 rounded-md p-1' />
+            
             <button className='border-white border-2 rounded-md py-2 !mt-5 text-white' onClick={(e) => handleSubmit(e)}>
               {(loading) ?
                 <svg role="status" class="inline w-5 h-5 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
